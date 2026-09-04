@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taipan Kedai Kopi V7.1: Ultra Smooth</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at center, #261711 0%, #0d0705 100%);
+            color: #f7f1eb;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            width: 1150px;
+            height: 94vh;
+            background: rgba(28, 17, 12, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid rgba(212, 163, 115, 0.2);
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* AREA KIRI */
+        .play-area {
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(59,40,24,0.6) 0%, rgba(15,9,7,0.9) 100%);
+            position: relative;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        .play-area h1 { 
+            color: #ffb703; 
+            font-size: 24px; 
+            font-weight: 800; 
+            margin-bottom: 4px; 
+            text-align: center; 
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 10px rgba(255, 183, 3, 0.3);
+        }
+        .rebirth-badge {
+            background: linear-gradient(135deg, #ffb703, #fb8500);
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(251, 133, 0, 0.4);
+        }
+
+        .coffee-btn-wrapper {
+            position: relative;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #btn-kopi {
+            font-size: 110px;
+            background: radial-gradient(circle, rgba(212,163,115,0.15) 0%, transparent 70%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.6));
+            z-index: 10;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #btn-kopi:active { transform: scale(0.85); }
+        .coffee-ring {
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            border: 2px dashed rgba(212, 163, 115, 0.4);
+            border-radius: 50%;
+            animation: spinRing 20s linear infinite;
+        }
+        @keyframes spinRing { 100% { transform: rotate(360deg); } }
+
+        .floating-text {
+            position: absolute;
+            color: #ffd166;
+            font-size: 24px;
+            font-weight: 800;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+            z-index: 30;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            will-change: transform, opacity;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.8); }
+            100% { opacity: 0; transform: translateY(-70px) scale(1.2); }
+        }
+
+        .stats-box {
+            background: rgba(18, 11, 8, 0.7);
+            padding: 18px;
+            border-radius: 16px;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            border: 1px solid rgba(212, 163, 115, 0.15);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        #skor-teks { font-size: 26px; font-weight: 800; color: #ffb703; margin-bottom: 8px; }
+
+        /* AREA KANAN (TOKO) */
+        .shop-area {
+            padding: 25px;
+            overflow-y: auto;
+            background: rgba(22, 14, 10, 0.5);
+        }
+        .shop-area::-webkit-scrollbar { width: 6px; }
+        .shop-area::-webkit-scrollbar-thumb { background: #5c3a21; border-radius: 10px; }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(212, 163, 115, 0.15);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        .shop-header h2 { color: #f4a261; font-size: 17px; font-weight: 700; }
+        
+        .buy-mode-container { display: flex; gap: 6px; }
+        .mode-btn {
+            background-color: #2e1d14;
+            color: #998070;
+            border: 1px solid #4a3022;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background-color: #ffb703;
+            color: #000;
+            border-color: #ffb703;
+            box-shadow: 0 2px 8px rgba(255, 183, 3, 0.4);
+        }
+
+        .kategori-toko {
+            margin-bottom: 22px;
+            background: rgba(18, 11, 8, 0.5);
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .kategori-toko h3 { margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+
+        .segmen-dasar h3 { color: #e9c46a; }
+        .segmen-lembur h3 { color: #2a9d8f; }
+        .segmen-api h3 { color: #f77f00; }
+        .segmen-api { border-color: rgba(215, 38, 38, 0.2); display: none; }
+        .segmen-air h3 { color: #00b4d8; }
+        .segmen-air { border-color: rgba(0, 119, 182, 0.2); display: none; }
+        .segmen-biji h3 { color: #ffd166; }
+        .segmen-biji { border-color: rgba(255, 209, 102, 0.2); display: none; }
+        .segmen-monopoli h3 { color: #06d6a0; }
+        .segmen-monopoli { border-color: rgba(6, 214, 160, 0.2); display: none; }
+        .segmen-dimensi h3 { color: #f72585; }
+        .segmen-dimensi { border-color: rgba(247, 37, 133, 0.2); display: none; }
+
+        .item-toko {
+            background: rgba(36, 22, 14, 0.6);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 163, 115, 0.08);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-info h4 { color: #fff; margin-bottom: 2px; font-size: 13px; font-weight: 600; }
+        .item-info p { font-size: 10px; color: #b09b8c; }
+        .item-info .pemilik { font-size: 10px; color: #ffb703; font-weight: 600; }
+
+        button.upgrade-btn {
+            background: linear-gradient(135deg, #2a9d8f, #21867a);
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 7px;
+            font-weight: 700;
+            cursor: pointer;
+            min-width: 105px;
+            font-size: 11px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(42, 157, 143, 0.3);
+            transition: filter 0.2s;
+        }
+        button.upgrade-btn:hover { filter: brightness(1.15); }
+        button.upgrade-btn:disabled { background: #221712; color: #55443b; cursor: not-allowed; box-shadow: none; }
+
+        .rebirth-area {
+            background: linear-gradient(135deg, rgba(74, 21, 21, 0.6), rgba(26, 2, 2, 0.9));
+            padding: 18px;
+            border-radius: 14px;
+            margin-top: 25px;
+            text-align: center;
+            border: 1px solid rgba(230, 57, 70, 0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .rebirth-area h3 { color: #ff4d4d; margin-bottom: 6px; font-size: 15px; font-weight: 800; }
+        .rebirth-area p { font-size: 11px; margin-bottom: 10px; color: #ffcccc; }
+        #btn-rebirth {
+            background: linear-gradient(135deg, #e63946, #c1121f);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+            transition: filter 0.2s;
+        }
+        #btn-rebirth:hover { filter: brightness(1.15); }
+        #btn-rebirth:disabled { background: #261212; color: #553b3b; cursor: not-allowed; box-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <!-- AREA KIRI -->
+        <div class="play-area" id="area-kiri">
+            <h1>Taipan Kedai Kopi</h1>
+            <div id="rebirth-badge" class="rebirth-badge">Rebirth: 0/5 | Multiplier Global: x1</div>
+            
+            <div class="coffee-btn-wrapper">
+                <div class="coffee-ring"></div>
+                <button id="btn-kopi">☕</button>
+            </div>
+
+            <div class="stats-box">
+                <div id="skor-teks"><span id="angka-skor">0</span></div>
+                <div style="font-size: 12px; color: #b09b8c; line-height: 1.6;">
+                    Klik/Ketuk: <span id="angka-klik" style="color:#ffd166; font-weight:700;">1</span> | Bonus Multi: <span id="angka-multiplier" style="color:#06d6a0; font-weight:700;">1x</span><br>
+                    Pendapatan Otomatis: <br>
+                    <span id="angka-otomatis" style="color:#06d6a0; font-size: 18px; font-weight:800;">0</span> / detik
+                </div>
+            </div>
+        </div>
+
+        <!-- AREA KANAN (TOKO) -->
+        <div class="shop-area">
+            <div class="shop-header">
+                <h2>🛒 Pusat Korporasi & Inovasi Kopi</h2>
+                <div class="buy-mode-container">
+                    <button class="mode-btn active" id="mode-1" onclick="ubahBeliMode(1)">Beli 1</button>
+                    <button class="mode-btn" id="mode-5" onclick="ubahBeliMode(5)">Beli 5</button>
+                    <button class="mode-btn" id="mode-10" onclick="ubahBeliMode(10)">Beli 10</button>
+                </div>
+            </div>
+
+            <!-- 1. SEGMEN DASAR -->
+            <div class="kategori-toko segmen-dasar">
+                <h3>☕ Operasional Awal</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>💪 Latihan Pergelangan</h4><p>+1 kekuatan klik manual</p><span class="pemilik" id="milik-klik">Milik: 0</span></div>
+                    <button id="btn-klik" class="upgrade-btn" onclick="beliItem('klik')"><span id="harga-klik">15</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>👨‍🍳 Rekrut Barista Magang</h4><p>+2 kopi/detik</p><span class="pemilik" id="milik-barista">Milik: 0</span></div>
+                    <button id="btn-barista" class="upgrade-btn" onclick="beliItem('barista')"><span id="harga-barista">50</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🫘 Gerobak Biji Robusta</h4><p>+10 kopi/detik</p><span class="pemilik" id="milik-gerobak">Milik: 0</span></div>
+                    <button id="btn-gerobak" class="upgrade-btn" onclick="beliItem('gerobak')"><span id="harga-gerobak">200</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🏭 Mesin Espresso Komersial</h4><p>+45 kopi/detik</p><span class="pemilik" id="milik-mesin">Milik: 0</span></div>
+                    <button id="btn-mesin" class="upgrade-btn" onclick="beliItem('mesin')"><span id="harga-mesin">950</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🚚 Armada Truk Logistik</h4><p>+200 kopi/detik</p><span class="pemilik" id="milik-truk">Milik: 0</span></div>
+                    <button id="btn-truk" class="upgrade-btn" onclick="beliItem('truk')"><span id="harga-truk">4.500</span></button>
+                </div>
+            </div>
+
+            <!-- 2. SEGMEN LEMBUR -->
+            <div class="kategori-toko segmen-lembur">
+                <h3>⚡ Shift Lembur & Booster (Rebirth 0)</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>☕ Sirup Kafein Konsentrat</h4><p><b>+25%</b> Total Pendapatan Global</p><span class="pemilik" id="milik-boost1">Milik: 0</span></div>
+                    <button id="btn-boost1" class="upgrade-btn" onclick="beliItem('boost1')"><span id="harga-boost1">1.200</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>📻 Playlist Lofi Toko</h4><p><b>+50% (1.5x)</b> Total Pendapatan Global</p><span class="pemilik" id="milik-boost2">Milik: 0</span></div>
+                    <button id="btn-boost2" class="upgrade-btn" onclick="beliItem('boost2')"><span id="harga-boost2">12.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>💡 Lampu Neon Estetik</h4><p><b>2x Lipat</b> Total Pendapatan Global</p><span class="pemilik" id="milik-boost3">Milik: 0</span></div>
+                    <button id="btn-boost3" class="upgrade-btn" onclick="beliItem('boost3')"><span id="harga-boost3">85.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🤝 Franchise Lokal Pertama</h4><p>+1.200 kopi/detik</p><span class="pemilik" id="milik-franchise">Milik: 0</span></div>
+                    <button id="btn-franchise" class="upgrade-btn" onclick="beliItem('franchise')"><span id="harga-franchise">350.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🚀 Injeksi Modal Angel Investor</h4><p><b>3x Lipat</b> Total Pendapatan Global</p><span class="pemilik" id="milik-boost4">Milik: 0</span></div>
+                    <button id="btn-boost4" class="upgrade-btn" onclick="beliItem('boost4')"><span id="harga-boost4">900.000</span></button>
+                </div>
+            </div>
+
+            <!-- 3. SEGMEN API -->
+            <div class="kategori-toko segmen-api" id="segmen-api">
+                <h3>🔥 Segmen Termal (Rebirth 1)</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌋 Roasting Magma Murni</h4><p>+7.500 kopi/detik</p><span class="pemilik" id="milik-api1">Milik: 0</span></div>
+                    <button id="btn-api1" class="upgrade-btn" onclick="beliItem('api1')"><span id="harga-api1">2.500.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🔥 Reaktor Pembakaran Inti</h4><p>+35.000 kopi/detik</p><span class="pemilik" id="milik-api2">Milik: 0</span></div>
+                    <button id="btn-api2" class="upgrade-btn" onclick="beliItem('api2')"><span id="harga-api2">15.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>☄️ Tabung Plasma Panas</h4><p>+160.000 kopi/detik</p><span class="pemilik" id="milik-api3">Milik: 0</span></div>
+                    <button id="btn-api3" class="upgrade-btn" onclick="beliItem('api3')"><span id="harga-api3">80.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>☀️ Penangkap Tenaga Surya</h4><p>+750.000 kopi/detik</p><span class="pemilik" id="milik-api4">Milik: 0</span></div>
+                    <button id="btn-api4" class="upgrade-btn" onclick="beliItem('api4')"><span id="harga-api4">400.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>⚡ Multiplier Super Api</h4><p><b>4x Lipat</b> Total Pendapatan</p><span class="pemilik" id="milik-api5">Milik: 0</span></div>
+                    <button id="btn-api5" class="upgrade-btn" onclick="beliItem('api5')"><span id="harga-api5">2.000.000.000</span></button>
+                </div>
+            </div>
+
+            <!-- 4. SEGMEN AIR -->
+            <div class="kategori-toko segmen-air" id="segmen-air">
+                <h3>💧 Segmen Hidro-Kinetik (Rebirth 2)</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🧊 Tambang Es Kutub</h4><p>+3.500.000 kopi/detik</p><span class="pemilik" id="milik-air1">Milik: 0</span></div>
+                    <button id="btn-air1" class="upgrade-btn" onclick="beliItem('air1')"><span id="harga-air1">10.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌊 Turbin Samudra Pasifik</h4><p>+18.000.000 kopi/detik</p><span class="pemilik" id="milik-air2">Milik: 0</span></div>
+                    <button id="btn-air2" class="upgrade-btn" onclick="beliItem('air2')"><span id="harga-air2">50.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌀 Pusaran Air Mariana</h4><p>+90.000.000 kopi/detik</p><span class="pemilik" id="milik-air3">Milik: 0</span></div>
+                    <button id="btn-air3" class="upgrade-btn" onclick="beliItem('air3')"><span id="harga-air3">250.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌧️ Stasiun Pengendali Cuaca</h4><p>+450.000.000 kopi/detik</p><span class="pemilik" id="milik-air4">Milik: 0</span></div>
+                    <button id="btn-air4" class="upgrade-btn" onclick="beliItem('air4')"><span id="harga-air4">1.200.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>💧 Multiplier Hidraulik</h4><p><b>5x Lipat</b> Total Pendapatan</p><span class="pemilik" id="milik-air5">Milik: 0</span></div>
+                    <button id="btn-air5" class="upgrade-btn" onclick="beliItem('air5')"><span id="harga-air5">6.000.000.000.000</span></button>
+                </div>
+            </div>
+
+            <!-- 5. SEGMEN BIJI -->
+            <div class="kategori-toko segmen-biji" id="segmen-biji">
+                <h3>✨ Segmen Kosmik-Biji (Rebirth 3)</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌌 Biji Bibit Multisemesta</h4><p>+2.500.000.000 kopi/detik</p><span class="pemilik" id="milik-biji1">Milik: 0</span></div>
+                    <button id="btn-biji1" class="upgrade-btn" onclick="beliItem('biji1')"><span id="harga-biji1">25.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>⏳ Mesin Waktu Panen</h4><p>+12.000.000.000 kopi/detik</p><span class="pemilik" id="milik-biji2">Milik: 0</span></div>
+                    <button id="btn-biji2" class="upgrade-btn" onclick="beliItem('biji2')"><span id="harga-biji2">120.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌱 Kebun Kopi Nebula</h4><p>+60.000.000.000 kopi/detik</p><span class="pemilik" id="milik-biji3">Milik: 0</span></div>
+                    <button id="btn-biji3" class="upgrade-btn" onclick="beliItem('biji3')"><span id="harga-biji3">600.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌠 Ekstrak Bintang Pulsar</h4><p>+300.000.000.000 kopi/detik</p><span class="pemilik" id="milik-biji4">Milik: 0</span></div>
+                    <button id="btn-biji4" class="upgrade-btn" onclick="beliItem('biji4')"><span id="harga-biji4">3.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌀 Multiplier Kuantum</h4><p><b>8x Lipat</b> Total Pendapatan</p><span class="pemilik" id="milik-biji5">Milik: 0</span></div>
+                    <button id="btn-biji5" class="upgrade-btn" onclick="beliItem('biji5')"><span id="harga-biji5">15.000.000.000.000.000</span></button>
+                </div>
+            </div>
+
+            <!-- 6. SEGMEN MONOPOLI -->
+            <div class="kategori-toko segmen-monopoli" id="segmen-monopoli">
+                <h3>💼 Segmen Sindikat Pasar (Rebirth 4)</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🏢 Akuisisi Korporat Global</h4><p>+1.500.000.000.000 kopi/detik</p><span class="pemilik" id="milik-mono1">Milik: 0</span></div>
+                    <button id="btn-mono1" class="upgrade-btn" onclick="beliItem('mono1')"><span id="harga-mono1">60.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🛰️ Satelit Mata-Mata Pasar</h4><p>+8.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-mono2">Milik: 0</span></div>
+                    <button id="btn-mono2" class="upgrade-btn" onclick="beliItem('mono2')"><span id="harga-mono2">300.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🏦 Bank Sentral Kopi Dunia</h4><p>+40.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-mono3">Milik: 0</span></div>
+                    <button id="btn-mono3" class="upgrade-btn" onclick="beliItem('mono3')"><span id="harga-mono3">1.500.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🗳️ Dewan Penguasa Pasar</h4><p>+200.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-mono4">Milik: 0</span></div>
+                    <button id="btn-mono4" class="upgrade-btn" onclick="beliItem('mono4')"><span id="harga-mono4">8.000.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>👑 Kartel Kopi Mutlak</h4><p><b>12x Lipat</b> Total Pendapatan</p><span class="pemilik" id="milik-mono5">Milik: 0</span></div>
+                    <button id="btn-mono5" class="upgrade-btn" onclick="beliItem('mono5')"><span id="harga-mono5">40.000.000.000.000.000.000</span></button>
+                </div>
+            </div>
+
+            <!-- 7. SEGMEN DIMENSI -->
+            <div class="kategori-toko segmen-dimensi" id="segmen-dimensi">
+                <h3>🌌 Dimensi Kosmik Terakhir (Rebirth 5)</h3>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🌀 Gerbang Lubang Hitam</h4><p>+1.000.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-dim1">Milik: 0</span></div>
+                    <button id="btn-dim1" class="upgrade-btn" onclick="beliItem('dim1')"><span id="harga-dim1">150.000.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>✨ Mesin Realitas Kopi</h4><p>+6.000.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-dim2">Milik: 0</span></div>
+                    <button id="btn-dim2" class="upgrade-btn" onclick="beliItem('dim2')"><span id="harga-dim2">800.000.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>👽 Aliansi Kopi Antar-Galaksi</h4><p>+35.000.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-dim3">Milik: 0</span></div>
+                    <button id="btn-dim3" class="upgrade-btn" onclick="beliItem('dim3')"><span id="harga-dim3">4.000.000.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>👁️ Penguasa Waktu Absolut</h4><p>+200.000.000.000.000.000 kopi/detik</p><span class="pemilik" id="milik-dim4">Milik: 0</span></div>
+                    <button id="btn-dim4" class="upgrade-btn" onclick="beliItem('dim4')"><span id="harga-dim4">25.000.000.000.000.000.000.000</span></button>
+                </div>
+                <div class="item-toko">
+                    <div class="item-info"><h4>🪐 Singularity Kopi Semesta</h4><p><b>25x Lipat</b> Total Pendapatan</p><span class="pemilik" id="milik-dim5">Milik: 0</span></div>
+                    <button id="btn-dim5" class="upgrade-btn" onclick="beliItem('dim5')"><span id="harga-dim5">150.000.000.000.000.000.000.000</span></button>
+                </div>
+            </div>
+
+            <!-- AREA REBIRTH -->
+            <div class="rebirth-area">
+                <h3>🔥 PROTOKOL REBIRTH 🔥</h3>
+                <p>Reset aset untuk membuka dimensi baru dan melipatgandakan Multiplier Global!</p>
+                <p style="color: #ffb703; font-weight: bold; margin: 5px 0;">Target: <span id="syarat-rebirth">1.000.000</span> Kopi</p>
+                <button id="btn-rebirth" onclick="lakukanRebirth()">Rebirth Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIKA GAME (OPTIMIZED) -->
+    <script>
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function mainkanSuaraKlik() {
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        let kopi = 0;
+        let rebirthLevel = 0;
+        let rebirthMultiplier = 1; 
+        let buyAmount = 1;
+
+        const syaratRebirthList = [
+            1000000,         
+            1000000000,      
+            500000000000,    
+            200000000000000, 
+            10000000000000000 
+        ];
+
+        let items = {
+            klik:      { nama: "Latihan Pergelangan", tipe: "klik", basisDaya: 1, hargaAwal: 15, harga: 15, naikHarga: 1.4, milik: 0 },
+            barista:   { nama: "Barista Magang", tipe: "auto", basisDaya: 2, hargaAwal: 50, harga: 50, naikHarga: 1.28, milik: 0 },
+            gerobak:   { nama: "Gerobak Robusta", tipe: "auto", basisDaya: 10, hargaAwal: 200, harga: 200, naikHarga: 1.3, milik: 0 },
+            mesin:     { nama: "Mesin Espresso", tipe: "auto", basisDaya: 45, hargaAwal: 950, harga: 950, naikHarga: 1.32, milik: 0 },
+            truk:      { nama: "Armada Truk", tipe: "auto", basisDaya: 200, hargaAwal: 4500, harga: 4500, naikHarga: 1.35, milik: 0 },
+
+            boost1:    { nama: "Sirup Kafein", tipe: "multi", nilaiMulti: 1.25, hargaAwal: 1200, harga: 1200, naikHarga: 1.8, milik: 0 },
+            boost2:    { nama: "Playlist Lofi", tipe: "multi", nilaiMulti: 1.5, hargaAwal: 12000, harga: 12000, naikHarga: 2.1, milik: 0 },
+            boost3:    { nama: "Lampu Neon", tipe: "multi", nilaiMulti: 2, hargaAwal: 85000, harga: 85000, naikHarga: 2.4, milik: 0 },
+            franchise: { nama: "Franchise Lokal", tipe: "auto", basisDaya: 1200, hargaAwal: 350000, harga: 350000, naikHarga: 1.38, milik: 0 },
+            boost4:    { nama: "Modal Investor", tipe: "multi", nilaiMulti: 3, hargaAwal: 900000, harga: 900000, naikHarga: 2.8, milik: 0 },
+
+            api1:      { nama: "Roasting Magma", tipe: "auto", basisDaya: 7500, hargaAwal: 2500000, harga: 2500000, naikHarga: 1.38, milik: 0 },
+            api2:      { nama: "Reaktor Inti", tipe: "auto", basisDaya: 35000, hargaAwal: 15000000, harga: 15000000, naikHarga: 1.4, milik: 0 },
+            api3:      { nama: "Tabung Plasma", tipe: "auto", basisDaya: 160000, hargaAwal: 80000000, harga: 80000000, naikHarga: 1.42, milik: 0 },
+            api4:      { nama: "Tenaga Surya", tipe: "auto", basisDaya: 750000, hargaAwal: 400000000, harga: 400000000, naikHarga: 1.44, milik: 0 },
+            api5:      { nama: "Multi Super Api", tipe: "multi", nilaiMulti: 4, hargaAwal: 2000000000, harga: 2000000000, naikHarga: 3.0, milik: 0 },
+
+            air1:      { nama: "Tambang Es", tipe: "auto", basisDaya: 3500000, hargaAwal: 10000000000, harga: 10000000000, naikHarga: 1.38, milik: 0 },
+            air2:      { nama: "Turbin Samudra", tipe: "auto", basisDaya: 18000000, hargaAwal: 50000000000, harga: 50000000000, naikHarga: 1.4, milik: 0 },
+            air3:      { nama: "Pusaran Mariana", tipe: "auto", basisDaya: 90000000, hargaAwal: 250000000000, harga: 250000000000, naikHarga: 1.42, milik: 0 },
+            air4:      { nama: "Pengendali Cuaca", tipe: "auto", basisDaya: 450000000, hargaAwal: 1200000000000, harga: 1200000000000, naikHarga: 1.45, milik: 0 },
+            air5:      { nama: "Multi Hidraulik", tipe: "multi", nilaiMulti: 5, hargaAwal: 6000000000000, harga: 6000000000000, naikHarga: 3.2, milik: 0 },
+
+            biji1:     { nama: "Bibit Multisemesta", tipe: "auto", basisDaya: 2500000000, hargaAwal: 25000000000000, harga: 25000000000000, naikHarga: 1.4, milik: 0 },
+            biji2:     { nama: "Mesin Waktu", tipe: "auto", basisDaya: 12000000000, hargaAwal: 120000000000000, harga: 120000000000000, naikHarga: 1.42, milik: 0 },
+            biji3:     { nama: "Kebun Nebula", tipe: "auto", basisDaya: 60000000000, hargaAwal: 600000000000000, harga: 600000000000000, naikHarga: 1.45, milik: 0 },
+            biji4:     { nama: "Bintang Pulsar", tipe: "auto", basisDaya: 300000000000, hargaAwal: 3000000000000000, harga: 3000000000000000, naikHarga: 1.48, milik: 0 },
+            biji5:     { nama: "Multi Kuantum", tipe: "multi", nilaiMulti: 8, hargaAwal: 15000000000000000, harga: 15000000000000000, naikHarga: 3.4, milik: 0 },
+
+            mono1:     { nama: "Akuisisi Global", tipe: "auto", basisDaya: 1500000000000, hargaAwal: 60000000000000000, harga: 60000000000000000, naikHarga: 1.42, milik: 0 },
+            mono2:     { nama: "Satelit Pasar", tipe: "auto", basisDaya: 8000000000000, hargaAwal: 300000000000000000, harga: 300000000000000000, naikHarga: 1.45, milik: 0 },
+            mono3:     { nama: "Bank Sentral", tipe: "auto", basisDaya: 40000000000000, hargaAwal: 1500000000000000000, harga: 1500000000000000000, naikHarga: 1.48, milik: 0 },
+            mono4:     { nama: "Dewan Penguasa", tipe: "auto", basisDaya: 200000000000000, hargaAwal: 8000000000000000000, harga: 8000000000000000000, naikHarga: 1.5, milik: 0 },
+            mono5:     { nama: "Kartel Mutlak", tipe: "multi", nilaiMulti: 12, hargaAwal: 40000000000000000000, harga: 40000000000000000000, naikHarga: 3.6, milik: 0 },
+
+            dim1:      { nama: "Lubang Hitam", tipe: "auto", basisDaya: 1000000000000000, hargaAwal: 150000000000000000000, harga: 150000000000000000000, naikHarga: 1.45, milik: 0 },
+            dim2:      { nama: "Mesin Realitas", tipe: "auto", basisDaya: 6000000000000000, hargaAwal: 800000000000000000000, harga: 800000000000000000000, naikHarga: 1.48, milik: 0 },
+            dim3:      { nama: "Aliansi Alien", tipe: "auto", basisDaya: 35000000000000000, hargaAwal: 4000000000000000000000, harga: 4000000000000000000000, naikHarga: 1.5, milik: 0 },
+            dim4:      { nama: "Penguasa Waktu", tipe: "auto", basisDaya: 200000000000000000, hargaAwal: 25000000000000000000000, harga: 25000000000000000000000, naikHarga: 1.52, milik: 0 },
+            dim5:      { nama: "Singularity Semesta", tipe: "multi", nilaiMulti: 25, hargaAwal: 150000000000000000000000, harga: 150000000000000000000000, naikHarga: 4.0, milik: 0 }
+        };
+
+        function formatAngka(angka) {
+            if (angka >= 1e21) return (angka / 1e21).toFixed(2) + " Sextillion";
+            if (angka >= 1e18) return (angka / 1e18).toFixed(2) + " Quintillion";
+            if (angka >= 1e15) return (angka / 1e15).toFixed(2) + " Quadrillion";
+            if (angka >= 1e12) return (angka / 1e12).toFixed(2) + " Triliun";
+            if (angka >= 1e9) return (angka / 1e9).toFixed(2) + " Miliar";
+            if (angka >= 1e6) return (angka / 1e6).toFixed(2) + " Juta";
+            return Math.floor(angka).toLocaleString('id-ID');
+        }
+
+        function ubahBeliMode(jumlah) {
+            buyAmount = jumlah;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`mode-${jumlah}`).classList.add('active');
+        }
+
+        function hitungTotalKlik() {
+            let basis = 1 + (items.klik.milik * items.klik.basisDaya);
+            let hasilAuto = hitungTotalOtomatis();
+            return basis * hasilAuto.multiGabungan;
+        }
+
+        function hitungTotalOtomatis() {
+            let autoBase = 0;
+            let totalMulti = 1;
+
+            for (let key in items) {
+                let item = items[key];
+                if (item.tipe === "auto") {
+                    autoBase += item.milik * item.basisDaya;
+                } else if (item.tipe === "multi" && item.milik > 0) {
+                    for(let i = 0; i < item.milik; i++) {
+                        totalMulti *= item.nilaiMulti;
+                    }
+                }
+            }
+            let multiplierAkhir = rebirthMultiplier * totalMulti;
+            return { auto: autoBase * multiplierAkhir, multiGabungan: multiplierAkhir };
+        }
+
+        function hitungHargaTotal(item, jumlah) {
+            let hargaTotal = 0;
+            let hargaTemp = item.harga;
+            for(let i = 0; i < jumlah; i++) {
+                hargaTotal += hargaTemp;
+                hargaTemp = Math.floor(hargaTemp * item.naikHarga);
+            }
+            return hargaTotal;
+        }
+
+        function updateLayar() {
+            let tKlik = hitungTotalKlik();
+            let hasilAuto = hitungTotalOtomatis();
+
+            document.getElementById("angka-skor").innerText = formatAngka(kopi) + " Kopi";
+            document.getElementById("angka-klik").innerText = formatAngka(tKlik);
+            document.getElementById("angka-otomatis").innerText = formatAngka(hasilAuto.auto);
+            document.getElementById("angka-multiplier").innerText = formatAngka(hasilAuto.multiGabungan) + "x";
+
+            for (let key in items) {
+                let item = items[key];
+                let elHarga = document.getElementById(`harga-${key}`);
+                let elMilik = document.getElementById(`milik-${key}`);
+                let btn = document.getElementById(`btn-${key}`);
+
+                let totalHargaBeli = hitungHargaTotal(item, buyAmount);
+
+                if (elHarga) {
+                    if (buyAmount > 1) {
+                        elHarga.innerText = `${formatAngka(totalHargaBeli)} (${buyAmount}x)`;
+                    } else {
+                        elHarga.innerText = formatAngka(item.harga);
+                    }
+                }
+                if (elMilik) elMilik.innerText = `Milik: ${item.milik}`;
+                if (btn) btn.disabled = (kopi < totalHargaBeli);
+            }
+
+            let btnRebirth = document.getElementById("btn-rebirth");
+            document.getElementById("rebirth-badge").innerText = `Rebirth: ${rebirthLevel}/5 | Multiplier Global: x${rebirthMultiplier}`;
+            
+            if (rebirthLevel >= 5) {
+                btnRebirth.innerText = "MAHKOTA KETUHANAN KOPILAND (TAMAT)";
+                btnRebirth.disabled = true;
+                document.getElementById("syarat-rebirth").innerText = "MAX!";
+            } else {
+                let syarat = syaratRebirthList[rebirthLevel];
+                document.getElementById("syarat-rebirth").innerText = formatAngka(syarat);
+                if (kopi >= syarat) {
+                    btnRebirth.disabled = false;
+                    btnRebirth.innerText = "KLIK UNTUK REBIRTH SEKARANG!";
+                } else {
+                    btnRebirth.disabled = true;
+                    btnRebirth.innerText = "Kopi Belum Cukup";
+                }
+            }
+
+            if(rebirthLevel >= 1) document.getElementById("segmen-api").style.display = "block";
+            if(rebirthLevel >= 2) document.getElementById("segmen-air").style.display = "block";
+            if(rebirthLevel >= 3) document.getElementById("segmen-biji").style.display = "block";
+            if(rebirthLevel >= 4) document.getElementById("segmen-monopoli").style.display = "block";
+            if(rebirthLevel >= 5) document.getElementById("segmen-dimensi").style.display = "block";
+        }
+
+        function buatTeksMelayang(x, y, nilai) {
+            const areaKiri = document.getElementById("area-kiri");
+            const teks = document.createElement("div");
+            teks.innerText = "+" + formatAngka(nilai);
+            teks.className = "floating-text";
+            teks.style.left = (x - 20) + "px";
+            teks.style.top = (y - 20) + "px";
+            areaKiri.appendChild(teks);
+            setTimeout(() => teks.remove(), 600);
+        }
+
+        document.getElementById("btn-kopi").addEventListener("click", function(e) {
+            mainkanSuaraKlik();
+            let tKlik = hitungTotalKlik();
+            kopi += tKlik;
+            
+            let rect = document.getElementById("area-kiri").getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            if (!x || x < 0) { x = rect.width / 2; y = rect.height / 2; }
+            
+            buatTeksMelayang(x, y, tKlik);
+            updateLayar();
+        });
+
+        function beliItem(key) {
+            let item = items[key];
+            let totalHargaBeli = hitungHargaTotal(item, buyAmount);
+
+            if (kopi >= totalHargaBeli) {
+                kopi -= totalHargaBeli;
+                for(let i = 0; i < buyAmount; i++) {
+                    item.milik += 1;
+                    item.harga = Math.floor(item.harga * item.naikHarga);
+                }
+                updateLayar();
+            }
+        }
+
+        function lakukanRebirth() {
+            let syarat = syaratRebirthList[rebirthLevel];
+            if (kopi >= syarat && rebirthLevel < 5) {
+                let konfirmasi = confirm(`REBIRTH TAHAP ${rebirthLevel + 1}? Aset di-reset, tapi Multiplier Global akan melompat naik secara drastis!`);
+                if (konfirmasi) {
+                    rebirthLevel++;
+                    rebirthMultiplier = Math.pow(4, rebirthLevel);
+                    kopi = 0;
+
+                    for (let key in items) {
+                        items[key].milik = 0;
+                        items[key].harga = items[key].hargaAwal;
+                    }
+
+                    if (rebirthLevel === 5) {
+                        alert("🌟 LUAR BIASA! Kamu mencapai tingkat Taipan Semesta Mutlak!");
+                    }
+                    updateLayar();
+                }
+            }
+        }
+
+        // Loop diperlambat menjadi 5 kali per detik (200ms) agar DOM tidak lagging
+        setInterval(function() {
+            let hasilAuto = hitungTotalOtomatis();
+            if (hasilAuto.auto > 0) {
+                kopi += hasilAuto.auto / 5;
+                updateLayar();
+            }
+        }, 200);
+
+        updateLayar();
+    </script>
+</body>
+</html>
